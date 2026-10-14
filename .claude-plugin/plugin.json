@@ -1,0 +1,10 @@
+{
+  "name": "astromesh-sdd",
+  "version": "0.1.0",
+  "description": "Spec-Driven Development for coding agents: specify, plan, tasks, implement, verify — with traceable artifacts on disk.",
+  "author": { "name": "Juan Carlos Romero", "url": "https://github.com/monaccode" },
+  "homepage": "https://github.com/monaccode/astromesh-sdd",
+  "repository": "https://github.com/monaccode/astromesh-sdd",
+  "license": "Apache-2.0",
+  "keywords": ["sdd", "spec-driven-development", "agent-skills", "planning", "astromesh"]
+}

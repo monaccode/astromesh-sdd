@@ -1,0 +1,12 @@
+{
+  "name": "astromesh",
+  "description": "Astromesh plugins for coding agents",
+  "owner": { "name": "monaccode", "url": "https://github.com/monaccode" },
+  "plugins": [
+    {
+      "name": "astromesh-sdd",
+      "source": "./",
+      "description": "Spec-Driven Development skills: specify, plan, tasks, implement, verify."
+    }
+  ]
+}
