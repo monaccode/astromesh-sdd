@@ -111,6 +111,29 @@ options (`-Target`, `-Global`, `-Dir`). Codex, OpenCode, Kimi, Gemini and Copilo
 every agent at once. Paths, invocation and how to check each one loaded:
 **[docs/install.md](docs/install.md)**.
 
+## What a feature looks like
+
+[`examples/specs/001-slugify-title`](examples/specs/001-slugify-title) was produced by these
+skills in Claude Code, from a one-line request to a verified feature in four approvals:
+
+```
+specs/001-slugify-title/
+  spec.md      7 requirements, a Security section (from a project rule), non-goals
+  plan.md      decisions, file map, 5 test-first steps, coverage table
+  tasks.md     T-1 … T-3, each with its check, all ticked
+  verify.md    suite output + traceability, verdict PASS
+```
+
+An excerpt of its `verify.md`:
+
+| Requirement | Tasks | Evidence | Status |
+|---|---|---|---|
+| REQ-2 | T-1 | `test_strips_accents` passed (`"Café Ñandú"` → `"cafe-nandu"`) | ✅ |
+| REQ-3 | T-1 | `test_drops_non_ascii` passed (`世界`, `☃`, `ß`/`Ø`) | ✅ |
+| REQ-4 | T-2 | `test_removes_punctuation` passed (`"C++ & Rust"` → `"c-rust"`) | ✅ |
+| REQ-6 | T-3 | `test_keeps_first_five_words` passed | ✅ |
+| REQ-7 | T-3 | `test_empty_result` passed (`"?!... --- ___"` → `""`) | ✅ |
+
 ## Make it yours
 
 You never edit the shipped skills. Put a `.sdd/` folder in your project (or `~/.sdd/` for

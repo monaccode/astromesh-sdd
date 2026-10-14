@@ -146,6 +146,30 @@ opciones (`-Target`, `-Global`, `-Dir`). Codex, OpenCode, Kimi, Gemini y Copilot
 opciones instala para todos los agentes a la vez. Rutas, cómo invocar y cómo comprobar que
 cargó en cada uno: **[docs/install.md](docs/install.md)** (en inglés).
 
+## Cómo se ve una feature
+
+[`examples/specs/001-slugify-title`](examples/specs/001-slugify-title) lo produjeron estas
+skills en Claude Code, desde un pedido de una línea hasta una feature verificada, con cuatro
+aprobaciones:
+
+```
+specs/001-slugify-title/
+  spec.md      7 requisitos, sección de Seguridad (por una regla del proyecto), no-objetivos
+  plan.md      decisiones, mapa de archivos, 5 pasos test-first, tabla de cobertura
+  tasks.md     T-1 … T-3, cada una con su check, todas tildadas
+  verify.md    salida de la suite + trazabilidad, veredicto PASS
+```
+
+Un extracto de su `verify.md`:
+
+| Requisito | Tareas | Evidencia | Estado |
+|---|---|---|---|
+| REQ-2 | T-1 | `test_strips_accents` pasó (`"Café Ñandú"` → `"cafe-nandu"`) | ✅ |
+| REQ-3 | T-1 | `test_drops_non_ascii` pasó (`世界`, `☃`, `ß`/`Ø`) | ✅ |
+| REQ-4 | T-2 | `test_removes_punctuation` pasó (`"C++ & Rust"` → `"c-rust"`) | ✅ |
+| REQ-6 | T-3 | `test_keeps_first_five_words` pasó | ✅ |
+| REQ-7 | T-3 | `test_empty_result` pasó (`"?!... --- ___"` → `""`) | ✅ |
+
 ## Hacelo tuyo
 
 Nunca editás las skills que vienen en el paquete. Poné una carpeta `.sdd/` en tu proyecto

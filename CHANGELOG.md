@@ -17,3 +17,9 @@ All notable changes to this project are documented here. The format follows
 - Customization through `.sdd/`: `config.yaml`, template overrides, per-phase rules and
   custom phases (`templates/my-phase`), with an example folder and `docs/extending.md`.
 - Per-platform install guide with the official source for every path.
+- Worked example `examples/specs/001-slugify-title`, produced by the skills.
+
+Tested before release: the full cycle (specify → verify, PASS) in Claude Code from
+`.claude/skills`; specify and plan in OpenCode from `.agents/skills`, with the `.claude`
+copy removed. Kimi Code, Codex CLI, Gemini CLI and GitHub Copilot are installed to their
+documented paths but not yet run end to end.
