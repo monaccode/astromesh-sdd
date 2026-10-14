@@ -1,0 +1,37 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pyyaml
+      - run: python -m unittest discover -s tests -p "test_*.py" -v
+      - run: python scripts/check.py .
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npx -y @anthropic-ai/claude-code plugin validate --strict .
+      - run: shellcheck install.sh tests/install_test.sh
+  install-posix:
+    strategy:
+      matrix: { os: [ubuntu-latest, macos-latest] }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh tests/install_test.sh
+      - if: runner.os == 'Linux'
+        run: SH=dash dash tests/install_test.sh
+  install-powershell:
+    strategy:
+      fail-fast: false
+      matrix: { os: [windows-latest, ubuntu-latest] }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: ./tests/install_test.ps1
