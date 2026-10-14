@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- New logo: an isometric stack of three slabs (spec, plan, tasks) with a check on top, crossed
+  by a violet traceability line through the corner of every step, in the Astromesh orbit
+  family. Replaces the page-based mark that read too close to Astromesh OKF.
+
 ## [0.1.0] - 2026-10-13
 
 ### Added
