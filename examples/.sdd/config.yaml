@@ -1,1 +1,11 @@
-specs_dir: specs
+# astromesh-sdd project settings. Every key is optional; delete what you don't change.
+# Precedence: this file > ~/.sdd/config.yaml > defaults shown here.
+
+specs_dir: specs            # where spec folders live
+language: en                # language of generated artifacts (en, es, pt, …)
+ids:
+  requirement: REQ          # REQ-1, REQ-2 …
+  task: T                   # T-1, T-2 …
+gates: [specify, plan, tasks]   # phases that stop for human approval; [] = autonomous
+verify_command: ""          # e.g. "npm test", "uv run pytest"; empty = infer or ask
+phases: [constitution, specify, plan, tasks, implement, verify]   # add your own, in order

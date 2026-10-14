@@ -82,5 +82,16 @@ class CheckContent(unittest.TestCase):
         self.assertEqual(check.check_content(self.root), [])
 
 
+class CheckConfig(unittest.TestCase):
+    def test_example_config_has_known_keys_only(self):
+        root = Path(__file__).resolve().parents[1]
+        self.assertEqual(check.check_config(root / "examples/.sdd/config.yaml"), [])
+
+    def test_unknown_key_fails(self):
+        p = Path(tempfile.mkdtemp()) / "config.yaml"
+        p.write_text("specs_dir: specs\nbogus: 1\n")
+        self.assertTrue(any("bogus" in e for e in check.check_config(p)))
+
+
 if __name__ == "__main__":
     unittest.main()

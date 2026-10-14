@@ -59,6 +59,18 @@ def check_content(root: Path) -> list[str]:
     return errs
 
 
+CONFIG_KEYS = {"specs_dir", "language", "ids", "gates", "verify_command", "phases"}
+
+
+def check_config(p: Path) -> list[str]:
+    import yaml  # only this check needs PyYAML
+
+    data = yaml.safe_load(p.read_text()) or {}
+    if not isinstance(data, dict):
+        return [f"ERROR {p}: must be a mapping"]
+    return [f"ERROR {p}: unknown key '{k}'" for k in sorted(set(data) - CONFIG_KEYS)]
+
+
 def check_repo(root: Path) -> list[str]:
     errs = []
     skills = sorted(p.parent for p in (root / "skills").glob("*/SKILL.md"))
@@ -67,6 +79,8 @@ def check_repo(root: Path) -> list[str]:
     for d in skills:
         errs += check_skill(d)
     errs += check_content(root)
+    errs += check_skill(root / "templates" / "my-phase")
+    errs += check_config(root / "examples" / ".sdd" / "config.yaml")
     for rel in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):
         try:
             json.loads((root / rel).read_text())
