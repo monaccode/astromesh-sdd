@@ -73,6 +73,8 @@ or because implementation discovered it:
 - A changed requirement keeps its ID; rewrite it and note the change.
 - A removed requirement stays in place as `~~REQ-4~~ (removed YYYY-MM-DD: <reason>)`.
 - Add a row to the spec's Changelog.
+- An approved spec that changes goes back to `**Status:** draft` until the user approves
+  the change.
 - If `plan.md` or `tasks.md` exist, list the steps and tasks that cite the changed IDs so
   they can be updated next.
 
@@ -80,4 +82,7 @@ or because implementation discovered it:
 
 If `specify` is in `gates`: show the user the artifact path and a 3–5 line summary, list any
 `[NEEDS CLARIFICATION]` items, and **stop**. Do not start the next phase until the user
-approves. If it is not in `gates`, say which phase runs next and continue.
+approves. When they approve, set the artifact's status line to
+`**Status:** approved · **Date:** YYYY-MM-DD` and save the file — approval has to live in
+the file, so a later session or another agent can see it. If `specify` is not in `gates`, set
+the status to approved yourself, say which phase runs next and continue.

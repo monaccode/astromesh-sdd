@@ -44,4 +44,7 @@ says `REQ` or `T`.
 
 If `my-phase` is in `gates`: show the user the artifact path and a 3–5 line summary, list any
 `[NEEDS CLARIFICATION]` items, and **stop**. Do not start the next phase until the user
-approves. If it is not in `gates`, say which phase runs next and continue.
+approves. When they approve, set the artifact's status line to
+`**Status:** approved · **Date:** YYYY-MM-DD` and save the file — approval has to live in
+the file, so a later session or another agent can see it. If `my-phase` is not in `gates`, set
+the status to approved yourself, say which phase runs next and continue.

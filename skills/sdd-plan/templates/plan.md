@@ -1,6 +1,6 @@
 # Plan — <NNN> <Title>
 
-**Spec:** ./spec.md · **Date:** YYYY-MM-DD
+**Status:** draft · **Date:** YYYY-MM-DD · **Spec:** ./spec.md
 
 ## Approach
 <2–4 sentences>

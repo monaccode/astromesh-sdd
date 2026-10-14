@@ -25,8 +25,11 @@ plan and tasks.
 
 ## Where am I?
 
-In the feature dir (the one named, else the highest `NNN`): nothing → specify;
-`spec.md` → plan; `plan.md` → tasks; unticked tasks → implement; all ticked → verify.
+In the feature dir (the one named, else the highest `NNN`), walk `phases` in order and do
+the first phase that is not done: no `spec.md` → specify; no `plan.md` → plan; no
+`tasks.md` → tasks; unticked tasks → implement; no `verify.md` → verify; `verify.md`
+PASS → done. A gated artifact whose `**Status:**` is not `approved` sends you back to its
+gate. `verify.md` FAIL → do its Next actions, then run `sdd-verify` again.
 
 ## Phases
 
@@ -59,7 +62,8 @@ requirement is ✅ and no task is unticked. Write `verify.md`; on FAIL, list whe
 
 ## Rules in every phase
 
-- **Gate:** after each phase in `gates`, show the artifact and stop until the user approves.
+- **Gate:** after each phase in `gates`, show the artifact and stop until the user approves;
+  then set its `**Status:**` line to `approved`. Approval lives in the file.
 - **Traceability:** every step and task cites a `REQ-n`; uncited requirements and
   unciting tasks are failures.
 - **Spec first:** requirements change in `spec.md` before code changes.

@@ -1,6 +1,6 @@
 # <NNN> — <Title>
 
-**Status:** draft | approved · **Date:** YYYY-MM-DD
+**Status:** draft · **Date:** YYYY-MM-DD
 
 ## Problem
 <who has the problem, what it costs them today — 2–4 sentences>

@@ -26,28 +26,30 @@ specs/
 
 ## Where am I? (routing)
 
-1. Read `.sdd/config.yaml` (project, else `~/.sdd/config.yaml`) for `specs_dir` and
-   `phases`. Missing file = defaults: `specs_dir: specs`,
+1. Read `.sdd/config.yaml` (project, else `~/.sdd/config.yaml`) for `specs_dir`, `gates` and
+   `phases`. Missing file = defaults: `specs_dir: specs`, `gates: [specify, plan, tasks]`,
    `phases: [constitution, specify, plan, tasks, implement, verify]`.
 2. Pick the feature dir: the one the user names, else the highest `NNN-*` in `specs_dir`.
-3. Route by what exists in that dir:
+   If the user describes something new, start a new feature with `sdd-specify`.
+3. Walk `phases` in order. The next step is the **first phase in `phases` that is not done**:
 
-| State | Next skill |
-|---|---|
-| no feature dir (or the user describes something new) | `sdd-specify` |
-| `spec.md` only | `sdd-plan` |
-| `plan.md`, no `tasks.md` | `sdd-tasks` |
-| `tasks.md` with any `- [ ]` | `sdd-implement` |
-| every task ticked, no `verify.md` | `sdd-verify` |
-| `verify.md` with verdict PASS | done — tell the user |
-| `verify.md` with verdict FAIL | follow its "Next actions" |
+| Phase | Done when | Skill |
+|---|---|---|
+| `constitution` | always (optional — suggest it once if `<specs_dir>/constitution.md` is missing, never block on it) | `sdd-constitution` |
+| `specify` | `spec.md` exists | `sdd-specify` |
+| `plan` | `plan.md` exists | `sdd-plan` |
+| `tasks` | `tasks.md` exists | `sdd-tasks` |
+| `implement` | `tasks.md` has no `- [ ]` left | `sdd-implement` |
+| `verify` | `verify.md` says **Verdict: PASS** | `sdd-verify` |
+| any other name | the file its skill says it writes exists | `sdd-<name>`, else `<name>` |
 
-`constitution` is optional: suggest `sdd-constitution` once if `<specs_dir>/constitution.md`
-does not exist, but do not block on it.
+**Approval lives in the file.** A phase listed in `gates` is only done when its artifact's
+`**Status:**` line says `approved`. If the artifact exists but its status is not `approved`,
+the next step is that phase's gate: show the artifact and ask for approval — do not move on.
 
-**Custom phases.** If `phases` lists a phase that is not one of the six above, a skill
-named `sdd-<phase>` (or `<phase>`) handles it. Route through `phases` in list order; a custom
-phase is done when the file its skill says it writes exists in the feature dir.
+**After a FAIL.** If `verify.md` says **Verdict: FAIL**, do its "Next actions" (they send
+you back to specify, tasks or implement). Once they are done and every task is ticked
+again, run `sdd-verify` again; it rewrites `verify.md`.
 
 Tell the user where the feature stands (one line), then use the next skill.
 

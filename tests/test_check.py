@@ -93,5 +93,35 @@ class CheckConfig(unittest.TestCase):
         self.assertTrue(any("bogus" in e for e in check.check_config(p)))
 
 
+REPO = Path(__file__).resolve().parents[1]
+
+
+class ShippedContent(unittest.TestCase):
+    def read(self, rel):
+        return (REPO / rel).read_text()
+
+    def test_gated_skills_record_approval_in_the_file(self):
+        for phase in ("specify", "plan", "tasks"):
+            text = self.read(f"skills/sdd-{phase}/SKILL.md")
+            self.assertIn("**Status:** approved", text, phase)
+            tmpl = self.read(f"skills/sdd-{phase}/templates/{'spec' if phase == 'specify' else phase}.md")
+            self.assertIn("**Status:** draft", tmpl, phase)
+
+    def test_router_follows_phases_order_and_status(self):
+        text = self.read("skills/sdd/SKILL.md")
+        self.assertIn("first phase in `phases`", text)
+        self.assertIn("not `approved`", text)
+
+    def test_router_reverifies_after_fail(self):
+        for rel in ("skills/sdd/SKILL.md", "AGENTS.md"):
+            self.assertIn("run `sdd-verify` again", self.read(rel), rel)
+
+    def test_agents_md_has_done_state(self):
+        self.assertIn("PASS → done", self.read("AGENTS.md"))
+
+    def test_powershell_installer_requires_pwsh7(self):
+        self.assertTrue(self.read("install.ps1").startswith("#Requires -Version 7"))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -31,6 +31,9 @@ Read `spec.md` (and `<specs_dir>/constitution.md` if present). If the spec still
 `[NEEDS CLARIFICATION]` items, resolve them with the user first — through `sdd-specify`'s
 "Changing a spec" rules — before planning. Planning around an open question bakes in a guess.
 
+If an earlier custom phase left its own artifact in the feature folder (for example
+`adr.md`), read it too: the plan must follow it.
+
 ## Step 2 — Understand the code it touches
 
 Trace the real flow end to end for the behavior the spec changes: entry point, the
@@ -67,4 +70,7 @@ change at the end of the Approach section with the date.
 
 If `plan` is in `gates`: show the user the artifact path and a 3–5 line summary, list any
 `[NEEDS CLARIFICATION]` items, and **stop**. Do not start the next phase until the user
-approves. If it is not in `gates`, say which phase runs next and continue.
+approves. When they approve, set the artifact's status line to
+`**Status:** approved · **Date:** YYYY-MM-DD` and save the file — approval has to live in
+the file, so a later session or another agent can see it. If `plan` is not in `gates`, set
+the status to approved yourself, say which phase runs next and continue.

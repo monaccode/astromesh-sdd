@@ -1,6 +1,6 @@
 # Tasks — <NNN> <Title>
 
-**Plan:** ./plan.md · **Spec:** ./spec.md
+**Status:** draft · **Date:** YYYY-MM-DD · **Plan:** ./plan.md · **Spec:** ./spec.md
 
 - [ ] T-1 — <title> (REQ-1)
   - files: `<path>`
