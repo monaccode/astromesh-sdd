@@ -73,11 +73,11 @@ astromesh-sdd/
     sdd-tasks/{SKILL.md, templates/tasks.md}
     sdd-implement/SKILL.md
     sdd-verify/{SKILL.md, templates/verify.md}
-    _template/SKILL.md        mold for user-defined phases (not installed)
   .claude-plugin/plugin.json
   .claude-plugin/marketplace.json
   AGENTS.md
   install.sh  install.ps1
+  templates/skill/SKILL.md    mold for user-defined phases (outside skills/ so no platform loads it)
   examples/.sdd/              commented example config, templates and rules
   examples/specs/001-…/       one worked example, fully traced
   docs/install.md  docs/extending.md
@@ -91,27 +91,39 @@ astromesh-sdd/
 **Installer** — `install.sh` (macOS/Linux, POSIX sh) and `install.ps1` (Windows), same flags:
 
 ```
-install --target <claude|codex|opencode|kimi|copilot|gemini|agents|all>
+install [--target claude|agents|agents-md|all]   default: all
         [--project | --global]   default: --project
         [--link]                 symlink instead of copy
         [--dry-run]              print actions, change nothing
         [--init]                 also write an example .sdd/ into the project
 ```
 
-Idempotent; never overwrites a user's `.sdd/`. The platform → path table lives once at the
-top of each script. **Every path is checked against that platform's official docs during
-implementation and cited in `docs/install.md`; a path that cannot be verified is marked
-unverified, not guessed.** `agents` target writes/updates `AGENTS.md` for tools without
-skill support (Cursor, Aider, Windsurf, etc.).
+Idempotent; never overwrites a user's `.sdd/`. Paths, verified 2026-10-13 against each
+platform's official docs (cited in `docs/install.md`):
 
-**Claude Code:** `/plugin marketplace add monaccode/astromesh-sdd` then
-`/plugin install astromesh-sdd`; or `install --target claude` for plain skills.
+| Target | Project | Global | Read by |
+|---|---|---|---|
+| `claude` | `.claude/skills/` | `~/.claude/skills/` | Claude Code (also OpenCode, Copilot) |
+| `agents` | `.agents/skills/` | `~/.agents/skills/` | Codex CLI, OpenCode, Kimi Code, Gemini CLI, GitHub Copilot |
+| `agents-md` | `AGENTS.md` (marked block) | — | any agent without skill support (Cursor, Aider, …) |
+
+`--target codex|opencode|kimi|gemini|copilot` are accepted as aliases of `agents`, so the
+docs can give each platform its own obvious command. `agents-md` inserts or replaces a block
+between `<!-- astromesh-sdd:start -->` / `<!-- astromesh-sdd:end -->`, keeping the rest of
+the user's `AGENTS.md`.
+
+**Claude Code:** the repo root is both the plugin (`.claude-plugin/plugin.json`, skills
+auto-discovered from `skills/`) and a one-plugin marketplace named `astromesh`
+(`marketplace.json`, entry `source: "./"`). Install: `/plugin marketplace add
+monaccode/astromesh-sdd` then `/plugin install astromesh-sdd@astromesh`; skills run as
+`/astromesh-sdd:sdd-specify`. Or `install --target claude` for plain `/sdd-specify`.
 
 **`docs/install.md`:** one section per platform — one-line command, equivalent manual path,
 how to invoke a skill there, how to check it loaded — plus "any other agent" via `AGENTS.md`.
 
 **CI:** validate each `SKILL.md` frontmatter (`name` equals folder name, matches
-`^[a-z0-9-]+$`, `description` present and ≤ 1024 chars); parse `plugin.json`,
+`^[a-z0-9]+(-[a-z0-9]+)*$`, ≤ 64 chars, `description` 1–1024 chars); `claude plugin
+validate --strict .`; parse `plugin.json`,
 `marketplace.json` and `examples/.sdd/config.yaml`; run `install.sh --dry-run` and a real
 install into a temp dir for every target on Linux and macOS, and `install.ps1` on Windows.
 **Release:** tag `vX.Y.Z` → GitHub Release with notes from `CHANGELOG.md`.
@@ -146,7 +158,7 @@ Three levels; none requires editing shipped skills. Precedence everywhere:
    ```
 2. **Overrides** — `.sdd/templates/<name>.md` replaces the shipped template of the same name;
    `.sdd/rules/<phase>.md` and `.sdd/rules/all.md` add rules to a phase / to every phase.
-3. **New phases** — copy `skills/_template/`, install it like any skill, list it in
+3. **New phases** — copy `templates/skill/`, install it like any skill, list it in
    `phases:` so the `sdd` index routes to it in order.
 
 Every phase skill opens with the same "Load project settings" step that applies the above.
@@ -161,5 +173,4 @@ produce `examples/specs/001-…` end to end, and record which platforms were act
 
 ## Open items resolved during implementation
 
-- Exact skill directories for each platform (verified against official docs, cited).
-- `marketplace.json` schema as Claude Code currently documents it.
+- Platform paths and `marketplace.json` shape: resolved 2026-10-13 (see section 2).
