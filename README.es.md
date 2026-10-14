@@ -140,8 +140,8 @@ cd astromesh-sdd
 | GitHub Copilot | `./install.sh --target copilot --dir ~/mi-proyecto` | se activa sola |
 | Cualquier otro | `./install.sh --target agents-md --dir ~/mi-proyecto` | lee `AGENTS.md` |
 
-`--global` instala para todos tus proyectos. En Windows usá `.\install.ps1` con las mismas
-opciones (`-Target`, `-Global`, `-Dir`). Codex, OpenCode, Kimi, Gemini y Copilot leen
+`--global` instala para todos tus proyectos. En Windows usá `pwsh -File .\install.ps1` (PowerShell 7) con
+las mismas opciones (`-Target`, `-Global`, `-Dir`). Codex, OpenCode, Kimi, Gemini y Copilot leen
 `.agents/skills/`, así que una sola instalación sirve para todos; `./install.sh` sin
 opciones instala para todos los agentes a la vez. Rutas, cómo invocar y cómo comprobar que
 cargó en cada uno: **[docs/install.md](docs/install.md)** (en inglés).

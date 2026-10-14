@@ -1,4 +1,5 @@
-# astromesh-sdd installer for Windows (PowerShell 7+). https://github.com/monaccode/astromesh-sdd
+#Requires -Version 7.0
+# astromesh-sdd installer for Windows, macOS and Linux (PowerShell 7+: run with pwsh). https://github.com/monaccode/astromesh-sdd
 [CmdletBinding()]
 param(
     [string]$Target = 'all',
@@ -53,14 +54,21 @@ function Update-AgentsMd {
     $f = Join-Path $Dir 'AGENTS.md'
     if ($DryRun) { Write-Output "would: update astromesh-sdd block in $f"; return }
     $block = "$Start`n" + (Get-Content -Raw (Join-Path $Src 'AGENTS.md')).TrimEnd() + "`n$End"
-    if ((Test-Path $f) -and ((Get-Content -Raw $f) -match [regex]::Escape($Start))) {
-        $pattern = '(?s)' + [regex]::Escape($Start) + '.*?' + [regex]::Escape($End)
+    $text = if (Test-Path $f) { Get-Content -Raw $f } else { '' }
+    # markers may end with CR when the file was saved with Windows line endings
+    $s = ([regex]::Matches($text, '(?m)^' + [regex]::Escape($Start) + '\r?$')).Count
+    $e = ([regex]::Matches($text, '(?m)^' + [regex]::Escape($End) + '\r?$')).Count
+    if ($s -eq 1 -and $e -eq 1) {
+        $pattern = '(?ms)^' + [regex]::Escape($Start) + '\r?$.*?^' + [regex]::Escape($End) + '\r?$'
         # MatchEvaluator: the block is inserted literally, '$' in it is not a substitution
-        $text = [regex]::Replace((Get-Content -Raw $f), $pattern, { param($m) $block })
+        $text = [regex]::Replace($text, $pattern, { param($m) $block })
         Set-Content -Path $f -Value $text -NoNewline
-    } else {
+    } elseif ($s -eq 0 -and $e -eq 0) {
         $prefix = if (Test-Path $f) { "`n" } else { '' }
         Add-Content -Path $f -Value ($prefix + $block)
+    } else {
+        [Console]::Error.WriteLine("error: $f has a broken astromesh-sdd block (start/end markers found: $s $e).`n       Fix or remove the block by hand, then run the installer again.")
+        exit 1
     }
     Write-Output "updated $f"
 }

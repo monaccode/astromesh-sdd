@@ -13,7 +13,7 @@ flowchart LR
 ```
 
 The first one that has the file wins. Missing files are normal. Run
-`./install.sh --init` (or `.\install.ps1 -Init`) to get a commented `.sdd/` to start from.
+`./install.sh --init` (or `pwsh -File .\install.ps1 -Init`) to get a commented `.sdd/` to start from.
 
 ## `.sdd/config.yaml`
 

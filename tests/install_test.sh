@@ -65,4 +65,33 @@ T=$(new); P="$T/proj dir"
 $SH "$REPO/install.sh" --dir "$P" --target claude >/dev/null
 [ "$(find "$P/.claude/skills" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')" = 7 ] || fail exactly_seven_skills
 echo "ok exactly_seven_skills"
+
+# broken_block_refused: start marker without end marker must not eat the user's file
+T=$(new); P="$T/proj dir"
+printf '# Mine\n<!-- astromesh-sdd:start -->\nkeep me\n' > "$P/AGENTS.md"
+cp "$P/AGENTS.md" "$T/before"
+set +e; $SH "$REPO/install.sh" --dir "$P" --target agents-md >/dev/null 2>&1; rc=$?; set -e
+[ "$rc" != 0 ] || fail broken_block_exit_code
+cmp -s "$P/AGENTS.md" "$T/before" || fail broken_block_modified
+echo "ok broken_block_refused"
+
+# crlf_block_replaced: a block saved with Windows line endings is still found and replaced
+T=$(new); P="$T/proj dir"
+printf '# Mine\r\n<!-- astromesh-sdd:start -->\r\nOLD BLOCK\r\n<!-- astromesh-sdd:end -->\r\nafter\r\n' > "$P/AGENTS.md"
+$SH "$REPO/install.sh" --dir "$P" --target agents-md >/dev/null
+grep -q "OLD BLOCK" "$P/AGENTS.md" && fail crlf_old_block_kept
+[ "$(grep -c 'astromesh-sdd:start' "$P/AGENTS.md")" = 1 ] || fail crlf_block_duplicated
+grep -q "after" "$P/AGENTS.md" || fail crlf_user_text_lost
+echo "ok crlf_block_replaced"
+
+# symlinked_agents_md: AGENTS.md -> CLAUDE.md stays a link and the target gets the block
+T=$(new); P="$T/proj dir"
+printf '# Claude rules\n' > "$P/CLAUDE.md"
+ln -s CLAUDE.md "$P/AGENTS.md"
+$SH "$REPO/install.sh" --dir "$P" --target agents-md >/dev/null
+$SH "$REPO/install.sh" --dir "$P" --target agents-md >/dev/null
+[ -L "$P/AGENTS.md" ] || fail symlink_replaced
+[ "$(grep -c 'astromesh-sdd:start' "$P/CLAUDE.md")" = 1 ] || fail symlink_target_block
+grep -q "# Claude rules" "$P/CLAUDE.md" || fail symlink_target_user_text
+echo "ok symlinked_agents_md"
 echo "ALL PASS"

@@ -59,7 +59,7 @@ if (-not $IsWindows) {
     $T = New-Sandbox; $P = Join-Path $T 'proj dir'
     $warn = & $Installer -Dir $P -Target claude -Link 3>&1 | Out-String
     Assert ((Get-Item (Join-Path $P '.claude/skills/sdd')).LinkType -eq 'SymbolicLink') 'link_not_symlink'
-    Assert ($warn -match 'warning|WARNING') 'link_warns'
+    Assert ($warn -match 'Link points at') 'link_warns'
     Write-Host 'ok link_warns'
 }
 
@@ -67,6 +67,7 @@ if (-not $IsWindows) {
 $T = New-Sandbox
 pwsh -NoProfile -File $Installer -Target nope -Dir $T *> $null
 Assert ($LASTEXITCODE -eq 2) 'bad_args'
+$global:LASTEXITCODE = 0
 Write-Host 'ok bad_args'
 
 # exactly seven skills
@@ -74,4 +75,38 @@ $T = New-Sandbox; $P = Join-Path $T 'proj dir'
 & $Installer -Dir $P -Target claude | Out-Null
 Assert (@(Get-ChildItem (Join-Path $P '.claude/skills')).Count -eq 7) 'exactly_seven_skills'
 Write-Host 'ok exactly_seven_skills'
+
+# broken_block_refused
+$T = New-Sandbox; $P = Join-Path $T 'proj dir'; $f = Join-Path $P 'AGENTS.md'
+Set-Content -LiteralPath $f "# Mine`n<!-- astromesh-sdd:start -->`nkeep me" -NoNewline
+$before = Get-Content -Raw -LiteralPath $f
+pwsh -NoProfile -File $Installer -Dir $P -Target agents-md *> $null
+Assert ($LASTEXITCODE -ne 0) 'broken_block_exit_code'
+$global:LASTEXITCODE = 0
+Assert ((Get-Content -Raw -LiteralPath $f) -ceq $before) 'broken_block_modified'
+Write-Host 'ok broken_block_refused'
+
+# crlf_block_replaced
+$T = New-Sandbox; $P = Join-Path $T 'proj dir'; $f = Join-Path $P 'AGENTS.md'
+Set-Content -LiteralPath $f "# Mine`r`n<!-- astromesh-sdd:start -->`r`nOLD BLOCK`r`n<!-- astromesh-sdd:end -->`r`nafter`r`n" -NoNewline
+& $Installer -Dir $P -Target agents-md | Out-Null
+$text = Get-Content -Raw -LiteralPath $f
+Assert ($text -notmatch 'OLD BLOCK') 'crlf_old_block_kept'
+Assert (([regex]::Matches($text, 'astromesh-sdd:start')).Count -eq 1) 'crlf_block_duplicated'
+Assert ($text -match 'after') 'crlf_user_text_lost'
+Write-Host 'ok crlf_block_replaced'
+
+# symlinked_agents_md (symlinks need Developer Mode on Windows)
+if (-not $IsWindows) {
+    $T = New-Sandbox; $P = Join-Path $T 'proj dir'
+    Set-Content -LiteralPath (Join-Path $P 'CLAUDE.md') '# Claude rules'
+    New-Item -ItemType SymbolicLink -Path (Join-Path $P 'AGENTS.md') -Target (Join-Path $P 'CLAUDE.md') | Out-Null
+    & $Installer -Dir $P -Target agents-md | Out-Null
+    & $Installer -Dir $P -Target agents-md | Out-Null
+    Assert ((Get-Item -LiteralPath (Join-Path $P 'AGENTS.md')).LinkType -eq 'SymbolicLink') 'symlink_replaced'
+    $c = Get-Content -Raw -LiteralPath (Join-Path $P 'CLAUDE.md')
+    Assert (([regex]::Matches($c, 'astromesh-sdd:start')).Count -eq 1) 'symlink_target_block'
+    Assert ($c -match '# Claude rules') 'symlink_target_user_text'
+    Write-Host 'ok symlinked_agents_md'
+}
 Write-Host 'ALL PASS'

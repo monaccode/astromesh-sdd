@@ -55,14 +55,30 @@ install_skills() {  # $1 = destination skills dir
 install_agents_md() {  # project scope only
   f="$DIR/AGENTS.md"
   if [ "$DRY" = 1 ]; then echo "would: update astromesh-sdd block in $f"; return; fi
+  # markers are compared without a trailing CR, so a file saved on Windows still matches
+  found="0 0"
+  if [ -f "$f" ]; then
+    found=$(awk -v s="$START" -v e="$END" '{sub(/\r$/, "")} $0==s {a++} $0==e {b++}
+      END {print a+0, b+0}' "$f")
+  fi
+  case $found in
+    "0 0") mode=append ;;
+    "1 1") mode=replace ;;
+    *) echo "error: $f has a broken astromesh-sdd block (start/end markers found: $found)." >&2
+       echo "       Fix or remove the block by hand, then run the installer again." >&2
+       exit 1 ;;
+  esac
   block="$f.block"
   { echo "$START"; cat "$SRC/AGENTS.md"; echo "$END"; } > "$block"
-  if [ -f "$f" ] && grep -qF "$START" "$f"; then
+  if [ "$mode" = replace ]; then
     # block is read from a file: awk -v would mangle backslashes in the content
     awk -v s="$START" -v e="$END" -v bf="$block" '
-      $0==s {while ((getline l < bf) > 0) print l; skip=1; next}
-      $0==e {skip=0; next} !skip' "$f" > "$f.tmp"
-    mv "$f.tmp" "$f"
+      {line=$0; sub(/\r$/, "", line)}
+      line==s {while ((getline l < bf) > 0) print l; skip=1; next}
+      line==e {skip=0; next} !skip' "$f" > "$f.tmp"
+    # cat > keeps a symlinked AGENTS.md a symlink; mv would replace it with a file
+    cat "$f.tmp" > "$f"
+    rm -f "$f.tmp"
   else
     if [ -f "$f" ]; then echo >> "$f"; fi
     cat "$block" >> "$f"

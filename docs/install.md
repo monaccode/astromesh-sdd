@@ -16,8 +16,11 @@ cd astromesh-sdd
 
 ```bash
 ./install.sh  [--target T] [--project | --global] [--dir PATH] [--link] [--dry-run] [--init]
-.\install.ps1 [-Target T]  [-Global]              [-Dir PATH]  [-Link] [-DryRun]  [-Init]
+pwsh -File .\install.ps1 [-Target T] [-Global] [-Dir PATH] [-Link] [-DryRun] [-Init]
 ```
+
+`install.ps1` needs **PowerShell 7** (`pwsh`). The Windows PowerShell 5.1 that ships with
+Windows will not run it; install PowerShell 7 with `winget install Microsoft.PowerShell`.
 
 | Option | What it does |
 |---|---|
@@ -32,7 +35,9 @@ cd astromesh-sdd
 | `--dry-run` | Prints what would change and changes nothing |
 | `--init` | Also creates an example `.sdd/` settings folder. An existing `.sdd/` is never touched |
 
-Running the installer again updates the skills in place. Your `.sdd/` folder and the
+Running the installer again updates the skills in place. If `AGENTS.md` has only one of
+the two markers (a block edited by hand), the installer stops without touching the file and
+asks you to fix the block. A symlinked `AGENTS.md` stays a symlink. Your `.sdd/` folder and the
 parts of `AGENTS.md` outside the marked block are never modified. On Windows, `-Link`
 needs Developer Mode (symlink permission); without it, use the default copy mode.
 `ASTROMESH_SDD_HOME` overrides the home directory `-Global` installs into.
