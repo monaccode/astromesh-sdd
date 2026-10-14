@@ -77,7 +77,7 @@ astromesh-sdd/
   .claude-plugin/marketplace.json
   AGENTS.md
   install.sh  install.ps1
-  templates/skill/SKILL.md    mold for user-defined phases (outside skills/ so no platform loads it)
+  templates/my-phase/SKILL.md    mold for user-defined phases (outside skills/ so no platform loads it)
   examples/.sdd/              commented example config, templates and rules
   examples/specs/001-…/       one worked example, fully traced
   docs/install.md  docs/extending.md
@@ -158,7 +158,7 @@ Three levels; none requires editing shipped skills. Precedence everywhere:
    ```
 2. **Overrides** — `.sdd/templates/<name>.md` replaces the shipped template of the same name;
    `.sdd/rules/<phase>.md` and `.sdd/rules/all.md` add rules to a phase / to every phase.
-3. **New phases** — copy `templates/skill/`, install it like any skill, list it in
+3. **New phases** — copy `templates/my-phase/`, install it like any skill, list it in
    `phases:` so the `sdd` index routes to it in order.
 
 Every phase skill opens with the same "Load project settings" step that applies the above.
