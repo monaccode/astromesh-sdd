@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-13
+
 ### Added
 
 - Seven Spec-Driven Development skills in the open Agent Skills format: `sdd` (cycle and
@@ -22,4 +24,8 @@ All notable changes to this project are documented here. The format follows
 Tested before release: the full cycle (specify → verify, PASS) in Claude Code from
 `.claude/skills`; specify and plan in OpenCode from `.agents/skills`, with the `.claude`
 copy removed. Kimi Code, Codex CLI, Gemini CLI and GitHub Copilot are installed to their
-documented paths but not yet run end to end.
+documented paths but not yet run end to end. Installers tested in CI on Linux, macOS and
+Windows.
+
+[Unreleased]: https://github.com/monaccode/astromesh-sdd/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/monaccode/astromesh-sdd/releases/tag/v0.1.0
