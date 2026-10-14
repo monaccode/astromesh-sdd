@@ -52,5 +52,35 @@ class CheckSkill(unittest.TestCase):
         self.assertTrue(any("license" in e for e in errs))
 
 
+STEP0 = "## Step 0 — Load project settings\nMissing files are normal.\n"
+
+
+class CheckContent(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp())
+
+    def test_phase_skill_without_step0_fails(self):
+        make_skill(self.root, "sdd-plan", GOOD.replace("sdd-x", "sdd-plan"))
+        self.assertTrue(any("Step 0" in e for e in check.check_content(self.root)))
+
+    def test_phase_skill_with_step0_passes(self):
+        make_skill(self.root, "sdd-plan", GOOD.replace("sdd-x", "sdd-plan") + STEP0)
+        self.assertEqual(check.check_content(self.root), [])
+
+    def test_unreferenced_template_fails(self):
+        d = make_skill(self.root, "sdd-plan", GOOD.replace("sdd-x", "sdd-plan") + STEP0)
+        (d / "templates").mkdir()
+        (d / "templates" / "plan.md").write_text("# Plan\n")
+        self.assertTrue(any("plan.md" in e for e in check.check_content(self.root)))
+
+    def test_specify_must_forbid_renumbering(self):
+        make_skill(self.root, "sdd-specify", GOOD.replace("sdd-x", "sdd-specify") + STEP0)
+        self.assertTrue(any("renumber" in e for e in check.check_content(self.root)))
+
+    def test_index_skill_is_exempt(self):
+        make_skill(self.root, "sdd", GOOD.replace("sdd-x", "sdd"))
+        self.assertEqual(check.check_content(self.root), [])
+
+
 if __name__ == "__main__":
     unittest.main()

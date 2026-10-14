@@ -41,6 +41,24 @@ def check_skill(d: Path) -> list[str]:
     return errs
 
 
+NO_RENUMBER_SKILLS = {"sdd-specify", "sdd-implement"}
+STEP0 = "## Step 0 — Load project settings"
+
+
+def check_content(root: Path) -> list[str]:
+    errs = []
+    for p in sorted((root / "skills").glob("sdd-*/SKILL.md")):
+        text, name = p.read_text(), p.parent.name
+        if STEP0 not in text or "Missing files are normal" not in text:
+            errs.append(f"ERROR {p}: missing the shared 'Step 0 — Load project settings' block")
+        for t in sorted((p.parent / "templates").glob("*.md")):
+            if t.name not in text:
+                errs.append(f"ERROR {p}: template {t.name} is never referenced")
+        if name in NO_RENUMBER_SKILLS and "never renumber" not in text:
+            errs.append(f"ERROR {p}: must state that IDs never renumber")
+    return errs
+
+
 def check_repo(root: Path) -> list[str]:
     errs = []
     skills = sorted(p.parent for p in (root / "skills").glob("*/SKILL.md"))
@@ -48,6 +66,7 @@ def check_repo(root: Path) -> list[str]:
         errs.append(f"ERROR {root / 'skills'}: no skills found")
     for d in skills:
         errs += check_skill(d)
+    errs += check_content(root)
     for rel in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):
         try:
             json.loads((root / rel).read_text())
